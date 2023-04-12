@@ -42,6 +42,122 @@ unique_ptr<TreeNode_u> createBinaryTree_u(vector<int> &nodes, int null_int) {
     return std::move(root);
 }
 
+/* 297. Serialize and Deserialize Binary Tree
+https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
+-1000 <= Node.val <= 1000
+*/
+// Encodes a tree to a single string.
+string _serialize(TreeNode_u *root) {
+    // # := null
+    string out = "", null_str = "#,";
+    if (root == NULL)
+        return out;
+
+    queue<TreeNode_u *> q;
+    q.push(root);
+    while (!q.empty()) {
+        auto *current = q.front();
+        q.pop();
+        if (current == NULL)
+            out += null_str;
+        else {
+            out += to_string(current->val) + ",";
+            q.push(current->left.get());
+            q.push(current->right.get());
+        }
+    }
+    return out;
+}
+string serialize(vector<int> &nodes) {
+    auto root = createBinaryTree_u(nodes, INT_MIN);
+    return _serialize(root.get());
+}
+// Decodes your encoded data to tree.
+unique_ptr<TreeNode_u> _deserialize(string data) {
+    if (data.size() == 0)
+        return NULL;
+
+    string null_str = "#";
+    stringstream str(data);
+    string node_str;
+    getline(str, node_str, ',');
+
+    queue<TreeNode_u *> q;
+    unique_ptr<TreeNode_u> root = make_unique<TreeNode_u>(stoi(node_str));
+    q.push(root.get());
+
+    while (!q.empty()) {
+        TreeNode_u *current = q.front();
+        q.pop();
+
+        if (!getline(str, node_str, ','))
+            break;
+        if (node_str != null_str) {
+            current->left = make_unique<TreeNode_u>(stoi(node_str));
+            q.push(current->left.get());
+        }
+        if (!getline(str, node_str, ','))
+            break;
+        if (node_str != null_str) {
+            current->right = make_unique<TreeNode_u>(stoi(node_str));
+            q.push(current->right.get());
+        }
+    }
+    return std::move(root);
+}
+string deserialize(string data) {
+    unique_ptr<TreeNode_u> root = _deserialize(data);
+    return _serialize(root.get());
+}
+
+/*236. Lowest Common Ancestor of a Binary Tree
+https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
+*/
+TreeNode_u *_lowestCommonAncestor(TreeNode_u *root, int p, int q) {
+    if (root == NULL)
+        return NULL;
+
+    if (root->val == p || root->val == q)
+        return root;
+
+    TreeNode_u *left = _lowestCommonAncestor(root->left.get(), p, q);
+    TreeNode_u *right = _lowestCommonAncestor(root->right.get(), p, q);
+
+    if (left != NULL && right != NULL)
+        return root;
+
+    return left != NULL ? left : right;
+}
+int lowestCommonAncestor(vector<int> nodes, int p, int q) {
+    auto root = createBinaryTree_u(nodes, INT_MIN);
+
+    auto *ancestor = _lowestCommonAncestor(root.get(), p, q);
+
+    int out = ancestor != NULL ? ancestor->val : -1;
+    return out;
+}
+
+/*94. Binary Tree Inorder Traversal
+https://leetcode.com/problems/binary-tree-inorder-traversal/
+*/
+vector<int> inorderTraversal(vector<int> nodes) {
+    auto root = createBinaryTree_u(nodes, INT_MIN);
+
+    vector<int> out;
+    auto inorder = [](const auto &inorder, TreeNode_u *root, vector<int> &out) {
+        if (!root)
+            return;
+
+        inorder(inorder, root->left.get(), out);
+        out.push_back(root->val);
+        inorder(inorder, root->right.get(), out);
+    };
+
+    inorder(inorder, root.get(), out);
+
+    return out;
+}
+
 /*
 https://leetcode.com/problems/minimum-number-of-visited-cells-in-a-grid/
 */
