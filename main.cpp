@@ -4,6 +4,44 @@
 
 #define TARGET minimizeMax
 
+struct TreeNode_u {
+    int val;
+    unique_ptr<TreeNode_u> left;
+    unique_ptr<TreeNode_u> right;
+    TreeNode_u(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+// * Create binary tree : vector --> TreeNode_u
+unique_ptr<TreeNode_u> createBinaryTree_u(vector<int> &nodes, int null_int) {
+    if (nodes.empty())
+        return nullptr;
+
+    // int null_int = -1; // Replace null ??
+    int i = 0;
+    unique_ptr<TreeNode_u> root = make_unique<TreeNode_u>(nodes[i++]);
+    queue<TreeNode_u *> q;
+    q.push(root.get());
+
+    while (!q.empty()) {
+        TreeNode_u *curr = q.front();
+        q.pop();
+
+        if (i < nodes.size() && nodes[i] != null_int) {
+            curr->left = make_unique<TreeNode_u>(nodes[i]);
+            q.push(curr->left.get());
+        }
+        ++i;
+
+        if (i < nodes.size() && nodes[i] != null_int) {
+            curr->right = make_unique<TreeNode_u>(nodes[i]);
+            q.push(curr->right.get());
+        }
+        ++i;
+    }
+
+    return std::move(root);
+}
+
 /*
 https://leetcode.com/problems/minimum-number-of-visited-cells-in-a-grid/
 */
