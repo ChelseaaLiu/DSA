@@ -17,7 +17,7 @@ Precondition: Node 1 and Node n on the same connected component
 Getting minimal weighted edge within connected component that includes Node 1
 and Node n
 */
-int32_t minScore(int32_t n, vector<vector<int32_t>> &roads) {
+inline int32_t minScore(int32_t n, vector<vector<int32_t>> &roads) {
     UnionFind uf(n + 1);
     vector<int32_t> min_dist(n + 1, INT32_MAX);
     for (auto &edge : roads) {
@@ -66,7 +66,7 @@ https://leetcode.com/problems/number-of-operations-to-make-network-connected/
 * In a connected component of a graph, if the number of edges exceeds the number
 of nodes, then the component necessarily contains redundant edges
 */
-int32_t makeConnected(int32_t n, vector<vector<int32_t>> &connections) {
+inline int32_t makeConnected(int32_t n, vector<vector<int32_t>> &connections) {
     if (connections.size() < n - 1)
         return -1;
     UnionFind uf(n);
@@ -86,7 +86,7 @@ int32_t makeConnected(int32_t n, vector<vector<int32_t>> &connections) {
 /*
 https://leetcode.com/problems/reorder-routes-to-make-all-paths-lead-to-the-city-zero/
 */
-int32_t minReorder(int32_t n, vector<vector<int32_t>> &connections) { return 0; }
+inline int32_t minReorder(int32_t n, vector<vector<int32_t>> &connections) { return 0; }
 
 /*
 https://leetcode.com/problems/count-unreachable-pairs-of-nodes-in-an-undirected-graph/
@@ -96,7 +96,7 @@ n1*n2*n3*n4 + n2*n3*n4 + n3*n4 => O(n^2)
 sum = n1+n2+n3+n3;
 n1*(sum-n1) + n2*(sum-n1-n2) + n3*(sum-n1-n2-n3) => O(n)
 */
-int64_t countPairs(int32_t n, vector<vector<int32_t>> &edges) {
+inline int64_t countPairs(int32_t n, vector<vector<int32_t>> &edges) {
     UnionFind uf(n);
     vector<int32_t> root_cnt(n, 1);
     for (auto &edge : edges) {
@@ -167,7 +167,7 @@ BFS detect cycle
 
 RECAP:
 */
-int32_t longestCycle(vector<int32_t> &edges) {
+inline int32_t longestCycle(vector<int32_t> &edges) {
     int32_t n = edges.size();
     vector<int32_t> in_degree(n, 0);
     vector<int8_t> visit(n, 0);
@@ -215,7 +215,7 @@ int32_t longestCycle(vector<int32_t> &edges) {
     }
     return res;
 }
-int32_t longestCycle_(vector<int32_t> &edges) {
+inline int32_t longestCycle_(vector<int32_t> &edges) {
     const int32_t n = edges.size();
     int32_t ans = -1, time = 1;
     vector<int32_t> time_visited(n);
@@ -240,6 +240,10 @@ int32_t longestCycle_(vector<int32_t> &edges) {
 }
 
 /*
+TODO: 4-directionally dfs
+*/
+
+/*
 https://leetcode.com/problems/number-of-closed-islands/description/
 
 NOTE: early return
@@ -253,7 +257,7 @@ bool d3 = dfs(dfs, r + 1, c);
 bool d4 = dfs(dfs, r, c + 1);
 return d1 && d2 && d3 && d4;
 */
-int32_t closedIsland(vector<vector<int32_t>> &grid) {
+inline int32_t closedIsland(vector<vector<int32_t>> &grid) {
     size_t row = grid.size();
     size_t col = grid[0].size();
 
@@ -282,11 +286,45 @@ int32_t closedIsland(vector<vector<int32_t>> &grid) {
 }
 
 /*
+https://leetcode.com/problems/number-of-enclaves/
+*/
+inline int32_t numEnclaves(vector<vector<int32_t>> &grid) {
+    size_t row = grid.size(), col = grid[0].size();
+
+    auto dfs = [&](const auto &dfs, size_t r, size_t c, size_t &area) {
+        if ((r == 0 || r == row - 1 || c == 0 || c == col - 1) && grid[r][c] == 1) {
+            return false;
+        }
+        if (grid[r][c] == 0 || grid[r][c] == 2)
+            return true;
+
+        grid[r][c] = 2;
+        ++area;
+        bool r1 = dfs(dfs, r + 1, c, area);
+        bool r2 = dfs(dfs, r - 1, c, area);
+        bool r3 = dfs(dfs, r, c + 1, area);
+        bool r4 = dfs(dfs, r, c - 1, area);
+
+        return r1 && r2 && r3 && r4;
+    };
+
+    int32_t res = 0;
+    for (size_t r = 1; r < row - 1; ++r) {
+        for (size_t c = 1; c < col - 1; ++c) {
+            size_t area = 0;
+            if (grid[r][c] == 1 && dfs(dfs, r, c, area))
+                res += area;
+        }
+    }
+    return res;
+}
+
+/*
 https://leetcode.com/problems/largest-color-value-in-a-directed-graph/
 
 RECAP:
 */
-int32_t largestPathValue(string colors, vector<vector<int32_t>> &edges) {
+inline int32_t largestPathValue(string colors, vector<vector<int32_t>> &edges) {
     size_t n = colors.size();
     vector<vector<int32_t>> adj_list(n);
     vector<int32_t> in_degree(n, 0);
@@ -321,7 +359,7 @@ acyclic (no cycle) -> exists
 O(V+E)
 ref. https://www.scaler.com/topics/data-structures/topological-sort-algorithm/
 */
-bool canFinish(int numCourses, vector<vector<int>> &prerequisites) {
+inline bool canFinish(int numCourses, vector<vector<int>> &prerequisites) {
 
     // * Create graph
     vector<vector<int>> graph(numCourses);
@@ -337,7 +375,7 @@ bool canFinish(int numCourses, vector<vector<int>> &prerequisites) {
 https://leetcode.com/problems/course-schedule-ii/
 O(V+E)
 */
-vector<int> findOrder(int numCourses, vector<vector<int>> &prerequisites) {
+inline vector<int> findOrder(int numCourses, vector<vector<int>> &prerequisites) {
     vector<int> out;
     // * Create graph
     vector<vector<int>> graph(numCourses);
